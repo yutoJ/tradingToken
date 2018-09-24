@@ -1,3 +1,10 @@
+require('dotenv').config();
+
+const HDWalletProvider = require('truffle-hdwallet-provider');
+
+const providerWithMnemonic = (mnemonic, rpcEndpoint) =>
+  new HDWalletProvider(mnemonic, rpcEndpoint);
+
 module.exports = {
   // See <http://truffleframework.com/docs/advanced/configuration>
   // for more about customizing your Truffle configuration!

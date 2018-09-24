@@ -1,31 +1,15 @@
 pragma solidity ^0.4.24;
 
-contract TradingMonster {
+import './AccessControl.sol';
+import './ERC721.sol';
+import './SafeMath.sol';
 
-  // class
-  struct Monster {
-    string name;
-    uint age;
-    bytes5 dna;
-  }
+contract DetailedERC721 is ERC721 {
+    function name() public view returns (string _name);
+    function symbol() public view returns (string _symbol);
+}
 
-  Monster[] monsters;
+contract TradingMonster is AccessControl, DetailedERC721 {
+  using SafeMath for uint256;
 
-  mapping (uint256 => address) private monsterToOwner;
-  mapping (address => uint256) private numOfMonster;
-
-  event MonsterCreated(uint256 _id, string _name, uint _age, bytes5 _dna);
-
-  function createMonster(string _name, uint _age, bytes5 _dna) public {
-    Monster memory _monster = Monster({
-      name: _name,
-      age: _age,
-      dna: _dna
-    });
-    monsters.push(_monster);
-    uint256 newMonsterId = monsters.push(_monster) -1;
-    monsterToOwner[newMonsterId] = msg.sender; // msg.sender is a user who executes the function
-    numOfMonster[msg.sender] = numOfMonster[msg.sender] + 1;
-    emit MonsterCreated(newMonsterId, _name, _age, _dna);
-  }
 }

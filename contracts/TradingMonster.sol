@@ -41,12 +41,12 @@ contract TradingMonster is AccessControl, DetailedERC721 {
     require(_owner != address(0));
     require(_price >= startingPrice);
 
-    byte5 dna = generateRandomDna();
-    _createMonster(_name, _dna, _owner, _price);
+    bytes5 dna = generateRandomDna();
+    _createMonster(_name, dna, _owner, _price);
   }
 
   function createMonster(string _name) public onlyCLevel {
-    byte5 dna = generateRandomDna();
+    bytes5 dna = generateRandomDna();
     _createMonster(_name, dna, address(this), startingPrice);
   }
 
@@ -79,7 +79,7 @@ contract TradingMonster is AccessControl, DetailedERC721 {
       _owner = monsterToOwner[tokenId];
   }
 
-  function getMonsters public view returns (
+  function getMonsters() public view returns (
     uint256[],
     uint256[],
     address[]
@@ -90,11 +90,37 @@ contract TradingMonster is AccessControl, DetailedERC721 {
     uint256[] memory nextPrices = new uint256[](total);
     address[] memory owners = new address[](total);
 
-    for (uint256 i = 0; i < total: i++) {
+    for (uint256 i = 0; i < total; i++) {
       prices[i] = tokenIdToPrice[i];
       nextPrices[i] = nextPriceOf(i);
       owners[i] = monsterToOwner[i];
     }
     return (prices, nextPrices, owners);
+  }
+
+  function generateRandomDna() private view returns ( bytes5 ) {
+    uint256 lastBlockNumber = block.number - 1;
+    bytes32 hashVal = bytes32(block.blockhash(lastBlockNumber));
+    bytes5 dna = bytes5((hashVal & '0xffffffff') << 256);
+    return dna;
+  }
+
+  function monstersOf(address _owner) public view returns(uint256[]) {
+    uint256 monsterCount = balanceOf(_owner);
+    if (monsterCount == 0) {
+        return new uint256[](0);
+    } else {
+      uint256[] memory result = new uint256[](monsterCount);
+      uint256 total = totalSupply();
+      uint256 resultIndex = 0;
+
+      for (uint256 i = 0; i < total; i++) {
+          if (monsterToOwner[i] == _owner) {
+              result[resultIndex] = i;
+              resultIndex++;
+          }
+      }
+      return result;
+    }
   }
 }
